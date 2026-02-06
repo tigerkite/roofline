@@ -1,0 +1,35 @@
+name: Deploy Roofline to S3
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  S3_BUCKET: www.bentsionweiss.com
+  S3_PREFIX: games/roofline
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::062571200985:role/GitHubDeploy-Roofline
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync to S3
+        run: |
+          aws s3 sync . "s3://${S3_BUCKET}/${S3_PREFIX}/" \
+            --delete \
+            --exclude ".git/*" \
+            --exclude ".github/*"

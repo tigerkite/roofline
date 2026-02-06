@@ -118,7 +118,10 @@ export const Modal = (() => {
     ui.btnHelp.addEventListener("click", openTutorial);
     ui.mClose.addEventListener("click", hideOverlay);
     ui.overlay.addEventListener("click", (e) => {
-      if (e.target === ui.overlay) hideOverlay();
+      if (e.target !== ui.overlay) return;
+      // Don't dismiss win/level-clear or lose modals by clicking outside — only tutorial
+      if (mode === "clear" || mode === "lose") return;
+      hideOverlay();
     });
 
     ui.mBack.addEventListener("click", () => {

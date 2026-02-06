@@ -1,5 +1,5 @@
 // js/app.js
-// Barista Pipeline — main app controller
+// Roofline Barista — main app controller
 
 import { U } from "./utils.js";
 import { Levels } from "./levels.js";
@@ -70,26 +70,39 @@ export const App = (() => {
   }
 
   // Layout: zones never overlap. Footer for pickup/remake fully below playfield.
+  // Responsive: narrow screens (W < 480) use stacked HUD, smaller zones, tighter layout.
   function geom(W, H) {
-    const pad = 24;
-    const topY = 110;
+    const narrow = W < 480;
+    const pad = narrow ? 12 : 24;
+    const gap = narrow ? 8 : 14;
+    const topY = narrow ? 138 : 110; // HUD taller when bottleneck stacked below
 
-    const footerH = 170;
+    const footerH = narrow ? 110 : 170;
     const footerY = H - footerH - pad;
-    const mainBottom = footerY - 12;
+    const mainBottom = footerY - (narrow ? 10 : 14);
 
-    const queue = { x: pad, y: topY, w: W * 0.44, h: Math.max(260, mainBottom - topY) };
+    const avail = W - pad * 2 - gap * 3;
+    const queueW = narrow ? avail * 0.42 : W * 0.44;
+    const counterW = narrow ? Math.max(36, avail * 0.12) : W * 0.10;
+    const barW = narrow ? avail * 0.28 : W * 0.32;
+    const pantryW = narrow ? Math.max(55, avail * 0.18) : 130;
+
+    const counterH = narrow ? 70 : 100;
+    const barY = topY + counterH;
+    const barMaxH = mainBottom - barY;
+
+    const queue = { x: pad, y: topY, w: queueW, h: Math.max(180, mainBottom - topY) };
     queue.h = Math.min(queue.h, mainBottom - queue.y);
 
-    const counter = { x: queue.x + queue.w + 14, y: queue.y, w: W * 0.10, h: 100 };
+    const counter = { x: queue.x + queue.w + gap, y: queue.y, w: counterW, h: counterH };
 
-    const bar = { x: queue.x + queue.w + 14, y: queue.y + 120, w: W * 0.32, h: 280 };
-    bar.h = Math.min(bar.h, Math.max(180, mainBottom - bar.y));
+    const bar = { x: queue.x + queue.w + gap, y: barY, w: barW, h: 280 };
+    bar.h = Math.max(0, Math.min(bar.h, barMaxH));
 
-    const pantry = { x: bar.x + bar.w + 14, y: bar.y, w: 130, h: 110 };
+    const pantry = { x: bar.x + bar.w + gap, y: bar.y, w: pantryW, h: Math.min(narrow ? 70 : 110, bar.h) };
 
     const zoneW = Math.min(250, (W - pad * 3) / 2);
-    const zoneH = footerH - 20;
+    const zoneH = footerH - 16;
 
     const remake = { x: pad, y: footerY, w: zoneW, h: zoneH };
     const pickup = { x: W - pad - zoneW, y: footerY, w: zoneW, h: zoneH };
@@ -187,29 +200,28 @@ export const App = (() => {
     return stars;
   }
 
-  // Roofline SVG
+  // Roofline SVG: X = arithmetic intensity, Y = throughput. Left of knee = bandwidth-limited; at/right of knee = ceiling.
   const rooflineSvg = `
     <div class="rooflineWrap">
       <div class="rooflineCaption">
         <b>The Roofline Model:</b><br>
-        Throughput rises with <b>compute</b> (baristas) until you hit the <b>bandwidth ceiling</b> (pantry speed).
-        Beyond that knee, adding more compute doesn't help \u2014 you're bandwidth-limited.
+        Throughput rises with intensity until you hit the <b>bandwidth ceiling</b> (the knee).
+        At the knee and beyond, more compute doesn't help \u2014 you're bandwidth-limited. That's where you are.
       </div>
-      <svg viewBox="0 0 520 210" width="100%" height="auto" aria-label="Roofline diagram">
-        <rect x="0" y="0" width="520" height="210" rx="8" fill="#fff" stroke="#e5e7eb" stroke-width="1"/>
-        <line x1="70" y1="170" x2="470" y2="170" stroke="#6b7280" stroke-width="3" stroke-linecap="round"/>
-        <line x1="70" y1="170" x2="70" y2="40" stroke="#6b7280" stroke-width="3" stroke-linecap="round"/>
-        <text x="255" y="198" font-size="12" fill="#6b7280" text-anchor="middle">Arithmetic intensity (batching, cache hits)</text>
-        <text x="18" y="105" font-size="12" fill="#6b7280" text-anchor="middle" transform="rotate(-90 18 105)">Throughput</text>
-        <line x1="70" y1="170" x2="300" y2="80" stroke="#E9B36C" stroke-width="6" stroke-linecap="round"/>
-        <text x="105" y="145" font-size="11" fill="#2563eb" font-weight="bold">Bandwidth-limited</text>
-        <line x1="300" y1="80" x2="470" y2="80" stroke="#1a1a1a" stroke-width="6" stroke-linecap="round"/>
-        <text x="340" y="68" font-size="11" fill="#1a1a1a" font-weight="bold">Compute-limited</text>
-        <circle cx="300" cy="80" r="7" fill="#2563eb"/>
-        <text x="310" y="100" font-size="12" fill="#2563eb" font-weight="bold">the knee</text>
-        <text x="160" y="80" font-size="28" fill="#2563eb">YOU</text>
-        <line x1="170" y1="85" x2="170" y2="140" stroke="#2563eb" stroke-width="2" stroke-dasharray="4"/>
-        <circle cx="170" cy="140" r="5" fill="#2563eb"/>
+      <svg viewBox="0 0 520 200" width="100%" height="auto" aria-label="Roofline diagram">
+        <rect x="0" y="0" width="520" height="200" rx="8" fill="#fff" stroke="#e5e7eb" stroke-width="1"/>
+        <line x1="60" y1="165" x2="460" y2="165" stroke="#6b7280" stroke-width="2" stroke-linecap="round"/>
+        <line x1="60" y1="165" x2="60" y2="35" stroke="#6b7280" stroke-width="2" stroke-linecap="round"/>
+        <text x="260" y="192" font-size="11" fill="#6b7280" text-anchor="middle">Arithmetic intensity \u2192</text>
+        <text x="22" y="100" font-size="11" fill="#6b7280" text-anchor="middle" transform="rotate(-90 22 100)">Throughput \u2192</text>
+        <line x1="60" y1="165" x2="280" y2="85" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/>
+        <text x="130" y="140" font-size="10" fill="#64748b">bandwidth-limited</text>
+        <line x1="280" y1="85" x2="460" y2="85" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
+        <text x="370" y="78" font-size="10" fill="#475569">compute ceiling</text>
+        <circle cx="280" cy="85" r="8" fill="#2563eb" stroke="#1d4ed8" stroke-width="2"/>
+        <text x="280" y="105" font-size="11" fill="#2563eb" font-weight="bold" text-anchor="middle">the knee</text>
+        <text x="272" y="68" font-size="14" fill="#2563eb" font-weight="bold" text-anchor="middle">YOU</text>
+        <line x1="280" y1="75" x2="280" y2="50" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="3"/>
       </svg>
     </div>
   `;
@@ -242,17 +254,15 @@ export const App = (() => {
         <b>Game translation:</b> adding baristas helps until pantry/data movement becomes the limiter.
         Then more compute doesn't help \u2014 you need better bandwidth/caching\u2026 or new hardware.
       </div>
-      <div class="rooflineCaption" style="margin-top:8px;">
-        <a href="https://www.amazon.com/NVD-RTX-PRO-6000-Blackwell/dp/B0F7Y644FQ?th=1" target="_blank" rel="noopener noreferrer">
-          \uD83D\uDE02 Fine\u2026 upgrade hardware (RTX PRO 6000 Blackwell)
-        </a>
+      <div class="rooflineCaption" style="margin-top:8px; text-align:center;">
+        If you <b>really</b> want to win this level <a href="https://www.amazon.com/NVD-RTX-PRO-6000-Blackwell/dp/B0F7Y644FQ?th=1" target="_blank" rel="noopener noreferrer">UPGRADE TO A SUPER PANTRY</a>.
       </div>
     ` : "");
 
     modal.openClear({
-      title: isFinal ? "You beat the game! \uD83C\uDFC1" : "Level " + L.id + " cleared!",
+      title: isFinal ? "SORRY \uD83D\uDE15" : "Level " + L.id + " cleared!",
       text: isFinal
-        ? "Incredible!\n\nWhat you learned:\n" + L.learn
+        ? "Level 4 is the bandwidth wall \u2014 it's designed so the pantry can't keep up.\n\nWhat you learned:\n" + L.learn
         : "Nice work!\n\nWhat you learned:\n" + L.learn + (L.unlockMsg ? "\n\nUnlocked:\n" + L.unlockMsg : ""),
       hoverHint: "AI/ML insight: " + L.learn,
       nextLabel: isFinal ? "Close" : "Next level \u27A1",
@@ -269,38 +279,25 @@ export const App = (() => {
     state.lv4Attempts++;
     const attempts = state.lv4Attempts;
 
-    let title, text;
+    const title = "SORRY";
+    let text;
     if (attempts <= 1) {
-      title = "\u23F1 Time's Up!";
-      text = "You served " + state.served + "/" + L.goal + " drinks.\n\nThe pantry couldn't keep up no matter what you tried.\n\nNotice: adding more baristas just made the pantry even MORE strained\u2026";
+      text = "You served " + state.served + " drinks.\n\nLevel 4 is the bandwidth wall: the pantry can't keep up no matter how you tune it. Adding more baristas just makes the pantry more strained \u2014 you've hit the Roofline ceiling. This level isn't meant to be won.";
     } else if (attempts <= 2) {
-      title = "\uD83E\uDDF1 The Bandwidth Wall";
-      text = "You served " + state.served + "/" + L.goal + " drinks.\n\nStill stuck! Every barista shares the same pantry.\nMore baristas = more contention = more waiting.\n\nYou're bandwidth-limited.";
+      text = "Same story: " + state.served + " drinks.\n\nEvery barista shares the same pantry. More baristas = more contention. You're bandwidth-limited. The game is making a point.";
     } else {
-      title = "\uD83D\uDEA7 Hardware Limit Reached";
-      text = "You served " + state.served + "/" + L.goal + " drinks.\n\nNo amount of optimization can overcome a hardware bottleneck.\nYour pantry (memory bandwidth) is the ceiling.\n\nIn ML: this is why we need faster memory, not just more GPUs.";
+      text = "Still " + state.served + " drinks.\n\nNo amount of optimisation can overcome this hardware bottleneck. Your pantry (memory bandwidth) is the ceiling. In real ML: that's why we need faster memory, not just more GPUs.";
     }
 
     const loseHtml = rooflineSvg + `
       <div class="rooflineCaption" style="margin-top:12px; font-size:14px;">
-        <b>\uD83E\uDDEA Roofline, clearly:</b> throughput rises with more compute <b>until</b> you hit pantry bandwidth.
-        Past the knee, you're <b>bandwidth-limited</b> \u2014 adding baristas doesn't help.
-        To move up, you need faster bandwidth (pantry) or higher arithmetic intensity (batching/cache hits).
+        <b>Roofline, in short:</b> throughput rises until you hit the knee. At the knee, you're bandwidth-limited \u2014 more compute doesn't help.
       </div>
       <div class="rooflineCaption" style="margin-top:12px; text-align:center;">
-        <b style="font-size:16px;">Pantry too slow? Upgrade the pantry to win!</b>
-      </div>
-      <div style="text-align:center; margin-top:8px;">
-        <a href="https://www.amazon.com/NVD-RTX-PRO-6000-Blackwell/dp/B0F7Y644FQ?th=1"
-           target="_blank" rel="noopener noreferrer"
-           style="display:inline-block; padding:12px 24px; background:linear-gradient(180deg,#76B900,#5A8F00);
-                  color:white; border-radius:999px; text-decoration:none; font-weight:900; font-size:15px;
-                  box-shadow:0 4px 16px rgba(0,0,0,.25); border:2px solid #4A7A00;">
-          \uD83D\uDED2 \u201CUpgrade the Pantry\u201D (totally not a GPU)
-        </a>
+        If you <b>really</b> want to win this level <a href="https://www.amazon.com/NVD-RTX-PRO-6000-Blackwell/dp/B0F7Y644FQ?th=1" target="_blank" rel="noopener noreferrer" style="font-weight:700;">UPGRADE TO A SUPER PANTRY</a>.
       </div>
       <div class="rooflineCaption" style="margin-top:8px; text-align:center; font-size:11px; color:#6b7280;">
-        (or try again\u2026 but you know how this ends \uD83D\uDE09)
+        (or try again \u2014 but you know how this ends \uD83D\uDE09)
       </div>
     `;
 

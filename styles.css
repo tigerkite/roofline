@@ -16,11 +16,25 @@
 
 *{box-sizing:border-box}
 
+html{
+  -webkit-text-size-adjust:100%;
+}
+
 body{
   margin:0;
   font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
   background:var(--bg);
   color:var(--ink);
+  padding-bottom:env(safe-area-inset-bottom, 0);
+}
+
+/* Touch: remove tap highlight, use outline for focus */
+.btn,.lever input{
+  -webkit-tap-highlight-color:transparent;
+}
+.btn:focus-visible,.lever input:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
 }
 
 .wrap{
@@ -45,7 +59,6 @@ header{
 
 header .left{display:flex; align-items:center; gap:10px}
 header h1{font-size:15px; margin:0; font-weight:600}
-header .sub{font-size:12px; color:var(--muted)}
 header .btns{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; align-items:center}
 
 .btn{
@@ -201,9 +214,126 @@ canvas{
   box-shadow:var(--shadow)
 }
 
+/* Tablet */
 @media (max-width: 900px){
   canvas{height:600px}
   .lever{min-width:unset; flex:1 1 100%}
+}
+
+/* Mobile */
+@media (max-width: 640px){
+  .wrap{
+    padding:10px;
+    gap:8px;
+  }
+
+  header{
+    flex-direction:column;
+    align-items:stretch;
+    gap:12px;
+    padding:12px;
+  }
+  header .left{
+    gap:8px;
+  }
+  header h1{font-size:14px}
+  header .btns{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:8px;
+  }
+  header .btns .btn{
+    min-height:44px;
+    padding:10px 8px;
+    font-size:13px;
+  }
+  /* Speed button can span or shrink */
+  header .btns #btnSpeed{grid-column:span 2}
+
+  .stage{padding:8px}
+  canvas{
+    height:min(420px, 60vh);
+    min-height:300px;
+  }
+  .levers{
+    padding:10px 8px;
+    gap:8px;
+  }
+  .lever{
+    min-width:unset;
+    flex:1 1 100%;
+    padding:12px 10px;
+  }
+  .lever .name{font-size:12px}
+  .lever .val{font-size:11px}
+  .lever input{
+    margin-top:8px;
+    min-height:28px;
+    touch-action:none;
+  }
+  .lever .hint{font-size:11px}
+
+  /* Modal: fit small screens and scroll */
+  .overlay{
+    padding:12px;
+    align-items:flex-start;
+    padding-top:max(12px, env(safe-area-inset-top));
+  }
+  .modal{
+    max-height:min(85vh, 90dvh);
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .modal .head{padding:12px 12px 0 12px}
+  .modal .head .tag{font-size:10px; padding:5px 8px}
+  .modal h3{margin:8px 12px 0 12px; font-size:16px}
+  .modal .body{padding:10px 12px 0 12px}
+  .box{padding:10px}
+  .box p{font-size:12px}
+  .modal .foot{
+    padding:12px;
+    padding-bottom:max(12px, env(safe-area-inset-bottom));
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .modal .foot .btn{
+    min-height:44px;
+    flex:1 1 auto;
+  }
+
+  .toast{
+    bottom:max(18px, env(safe-area-inset-bottom));
+    left:12px;
+    right:12px;
+    transform:translateX(0);
+    width:auto;
+    max-width:100%;
+  }
+}
+
+/* Extra narrow (e.g. iPhone SE, small phones) */
+@media (max-width: 480px){
+  .wrap{padding:8px; gap:6px}
+  header{padding:10px}
+  header h1{font-size:13px}
+  header .btns .btn{font-size:12px; padding:8px 6px}
+  .stage{padding:6px}
+  canvas{
+    height:min(380px, 55vh);
+    min-height:280px;
+  }
+}
+
+/* Touch: larger hit areas and no hover reliance */
+@media (hover: none){
+  .btn:focus-visible,
+  .btn:hover{
+    border-color:var(--accent);
+    color:var(--accent);
+  }
+  .lever input{
+    min-height:32px;
+  }
 }
 
 .modalExtra{
