@@ -45,14 +45,15 @@ export const Levels = (() => {
     {
       id: 4,
       name: "The Bandwidth Wall",
-      goal: 999,
-      duration: 50,
+      goal: 35,
+      duration: 52,
       unlock: { batch: true, quality: true },
-      trafficRps: 2.80,
+      trafficRps: 2.90,
       serviceBase: 2.50,
       bwStallBase: 0.62,
       remakeByQ: [0.28, 0.16, 0.09],
       bwContention: true,
+      patienceMult: 0.38,
       learn: "No matter how you optimise, the pantry (bandwidth) can\u2019t keep up. You\u2019ve hit the Roofline ceiling.",
       unlockMsg: null
     },

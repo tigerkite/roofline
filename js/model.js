@@ -93,7 +93,7 @@ export const Model = (() => {
     state.stations = Array.from({ length: n }, (_, i) => old[i] || { busy: false, t: 0, batch: [], stall: 0, x: 0, y: 0 });
   }
 
-  function spawnCustomer(state, linePath, lineLens) {
+  function spawnCustomer(state, level, linePath, lineLens) {
     const o = U.pick(ORDERS);
     const backPoint = U.pointOnPath(linePath, lineLens, lineLens.total);
 
@@ -110,6 +110,8 @@ export const Model = (() => {
     } else {
       custType = "regular"; patienceBase = 28;
     }
+    const mult = level.patienceMult != null ? level.patienceMult : 1;
+    const effectiveBase = Math.max(4, patienceBase * mult);
 
     state.queue.push({
       id: Math.random().toString(16).slice(2),
@@ -120,7 +122,7 @@ export const Model = (() => {
       targetDist: lineLens.total,
       dist: lineLens.total,
       patience: 1.0,
-      patienceRate: 1.0 / patienceBase,
+      patienceRate: 1.0 / effectiveBase,
       custType,
     });
   }
@@ -131,7 +133,7 @@ export const Model = (() => {
     // spawn
     state.spawnAcc += level.trafficRps * dt;
     while (state.spawnAcc >= 1) {
-      spawnCustomer(state, linePath, lineLens);
+      spawnCustomer(state, level, linePath, lineLens);
       state.spawnAcc -= 1;
     }
 
