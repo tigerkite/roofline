@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>🍂☕ Barista Pipeline — AI Inference Tradeoff Game</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="left">
+        <div style="font-size:18px">🍂☕</div>
+        <div>
+          <h1>Barista Pipeline</h1>
+          <div class="sub">A cozy queue game (latency vs throughput vs goodput).</div>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button class="btn" id="btnInfo" title="AI/ML explanation + P95">💡</button>
+        <button class="btn" id="btnSound" title="Toggle sound">🔊</button>
+        <button class="btn" id="btnSpeed">Speed: 1×</button>
+        <button class="btn" id="btnGo">GO</button>
+        <button class="btn" id="btnPause">Pause</button>
+        <button class="btn" id="btnReset">Reset</button>
+        <button class="btn" id="btnHelp">Tutorial</button>
+      </div>
+    </header>
+
+    <div class="card" id="infoPanel" style="display:none;">
+      <div class="infoInner">
+        <div class="infoTitle">💡 What’s happening (AI/ML mapping)</div>
+        <div class="infoText">
+          <b>Customers</b> = requests (RPS / concurrency)<br>
+          <b>Line length</b> = queueing delay → latency<br>
+          <b>Baristas</b> = compute (GPUs/replicas/workers)<br>
+          <b>Pantry speed</b> = bandwidth / data movement (KV cache/memory/network)<br>
+          <b>Batch size</b> = microbatching (throughput↑, latency↑)<br>
+          <b>P95 wait</b> = “95% of customers waited ≤ this time” (tail latency)<br><br>
+          <b>Goodput</b> = drinks that actually succeed (no remakes).<br>
+        </div>
+      </div>
+    </div>
+
+    <div class="card stage">
+      <canvas id="cv"></canvas>
+
+      <div class="levers">
+        <div class="lever" id="leverCompute">
+          <div class="top">
+            <div class="name">🧑‍🍳 Baristas</div>
+            <div class="val" id="valCompute">1</div>
+          </div>
+          <input id="sCompute" type="range" min="1" max="6" step="1" value="1" />
+          <div class="hint">More baristas = more capacity (compute).</div>
+        </div>
+
+        <div class="lever" id="leverBW">
+          <div class="top">
+            <div class="name">🧺 Pantry speed</div>
+            <div class="val" id="valBW">0.60×</div>
+          </div>
+          <input id="sBW" type="range" min="0.6" max="2.0" step="0.05" value="0.6" />
+          <div class="hint">If baristas “wait”… you're bandwidth-limited.</div>
+        </div>
+
+        <div class="lever hidden" id="leverBatch">
+          <div class="top">
+            <div class="name">📦 Batch size</div>
+            <div class="val" id="valBatch">Off</div>
+          </div>
+          <input id="sBatch" type="range" min="0" max="6" step="1" value="0" />
+          <div class="hint">Unlocked later. More throughput, but adds waiting.</div>
+        </div>
+
+        <div class="lever hidden" id="leverQuality">
+          <div class="top">
+            <div class="name">✅ Double-checks</div>
+            <div class="val" id="valQuality">Medium</div>
+          </div>
+          <input id="sQuality" type="range" min="0" max="2" step="1" value="1" />
+          <div class="hint">Unlocked later. Fewer remakes, but slower service.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- shared modal -->
+    <!-- shared modal -->
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <div class="modal">
+      <div class="head">
+        <div class="tag" id="mTag">Tutorial</div>
+        <button class="btn" id="mClose">Close</button>
+      </div>
+      <h3 id="mTitle">Welcome</h3>
+      <div class="body">
+        <div class="box">
+          <p id="mText">—</p>
+          <div class="nerdLine" id="mNerd" style="display:none">—</div>
+
+          <!-- NEW: optional extra content (roofline diagram, links, etc) -->
+          <div id="mExtra" class="modalExtra" style="display:none"></div>
+        </div>
+      </div>
+      <div class="foot">
+        <button class="btn" id="mBack">Back</button>
+        <button class="btn" id="mNext">Next ➜</button>
+      </div>
+    </div>
+  </div>
+
+
+  <script type="module" src="./js/main.js"></script>
+  <div class="toast" id="toast">—</div>
+
+</body>
+</html>
