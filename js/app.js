@@ -196,20 +196,20 @@ export const App = (() => {
         Beyond that knee, adding more compute doesn't help \u2014 you're bandwidth-limited.
       </div>
       <svg viewBox="0 0 520 210" width="100%" height="auto" aria-label="Roofline diagram">
-        <rect x="0" y="0" width="520" height="210" rx="16" fill="#FFF8EB" stroke="#E2C7A7" stroke-width="2"/>
-        <line x1="70" y1="170" x2="470" y2="170" stroke="#6B4C3A" stroke-width="3" stroke-linecap="round"/>
-        <line x1="70" y1="170" x2="70" y2="40" stroke="#6B4C3A" stroke-width="3" stroke-linecap="round"/>
-        <text x="255" y="198" font-size="12" fill="#6B4C3A" text-anchor="middle">Arithmetic intensity (batching, cache hits)</text>
-        <text x="18" y="105" font-size="12" fill="#6B4C3A" text-anchor="middle" transform="rotate(-90 18 105)">Throughput</text>
+        <rect x="0" y="0" width="520" height="210" rx="8" fill="#fff" stroke="#e5e7eb" stroke-width="1"/>
+        <line x1="70" y1="170" x2="470" y2="170" stroke="#6b7280" stroke-width="3" stroke-linecap="round"/>
+        <line x1="70" y1="170" x2="70" y2="40" stroke="#6b7280" stroke-width="3" stroke-linecap="round"/>
+        <text x="255" y="198" font-size="12" fill="#6b7280" text-anchor="middle">Arithmetic intensity (batching, cache hits)</text>
+        <text x="18" y="105" font-size="12" fill="#6b7280" text-anchor="middle" transform="rotate(-90 18 105)">Throughput</text>
         <line x1="70" y1="170" x2="300" y2="80" stroke="#E9B36C" stroke-width="6" stroke-linecap="round"/>
-        <text x="105" y="145" font-size="11" fill="#D9480F" font-weight="bold">Bandwidth-limited</text>
-        <line x1="300" y1="80" x2="470" y2="80" stroke="#3B2A1F" stroke-width="6" stroke-linecap="round"/>
-        <text x="340" y="68" font-size="11" fill="#3B2A1F" font-weight="bold">Compute-limited</text>
-        <circle cx="300" cy="80" r="7" fill="#D9480F"/>
-        <text x="310" y="100" font-size="12" fill="#D9480F" font-weight="bold">the knee</text>
-        <text x="160" y="80" font-size="28" fill="#D9480F">YOU</text>
-        <line x1="170" y1="85" x2="170" y2="140" stroke="#D9480F" stroke-width="2" stroke-dasharray="4"/>
-        <circle cx="170" cy="140" r="5" fill="#D9480F"/>
+        <text x="105" y="145" font-size="11" fill="#2563eb" font-weight="bold">Bandwidth-limited</text>
+        <line x1="300" y1="80" x2="470" y2="80" stroke="#1a1a1a" stroke-width="6" stroke-linecap="round"/>
+        <text x="340" y="68" font-size="11" fill="#1a1a1a" font-weight="bold">Compute-limited</text>
+        <circle cx="300" cy="80" r="7" fill="#2563eb"/>
+        <text x="310" y="100" font-size="12" fill="#2563eb" font-weight="bold">the knee</text>
+        <text x="160" y="80" font-size="28" fill="#2563eb">YOU</text>
+        <line x1="170" y1="85" x2="170" y2="140" stroke="#2563eb" stroke-width="2" stroke-dasharray="4"/>
+        <circle cx="170" cy="140" r="5" fill="#2563eb"/>
       </svg>
     </div>
   `;
@@ -233,7 +233,7 @@ export const App = (() => {
 
     const starEmoji = "\u2B50".repeat(stars) + "\u2606".repeat(3 - stars);
     const starHtml = '<div style="text-align:center;font-size:36px;letter-spacing:10px;margin:4px 0;">' + starEmoji + '</div>'
-      + '<div style="text-align:center;font-size:12px;color:#6B4C3A;margin-bottom:6px;">'
+      + '<div style="text-align:center;font-size:12px;color:#6b7280;margin-bottom:6px;">'
       + (stars === 3 ? 'Perfect! Low P95, no lost customers, time to spare!' : stars === 2 ? 'Great! Try for 3 stars: low P95, zero lost, faster clear.' : 'Cleared! Optimise for better stars: lower P95, fewer remakes.')
       + '</div>';
 
@@ -272,23 +272,23 @@ export const App = (() => {
     let title, text;
     if (attempts <= 1) {
       title = "\u23F1 Time's Up!";
-      text = "You served " + state.served + "/" + L.goal + " drinks.\n\nHmm, the pantry couldn't keep up no matter what you tried.\n\nNotice: adding more baristas made the pantry even MORE strained\u2026";
+      text = "You served " + state.served + "/" + L.goal + " drinks.\n\nThe pantry couldn't keep up no matter what you tried.\n\nNotice: adding more baristas just made the pantry even MORE strained\u2026";
     } else if (attempts <= 2) {
       title = "\uD83E\uDDF1 The Bandwidth Wall";
-      text = "You served " + state.served + "/" + L.goal + " drinks.\n\nStill stuck! Every barista shares the same pantry.\nMore baristas = more contention = more waiting.\n\nThis is the Roofline Model in action.";
+      text = "You served " + state.served + "/" + L.goal + " drinks.\n\nStill stuck! Every barista shares the same pantry.\nMore baristas = more contention = more waiting.\n\nYou're bandwidth-limited.";
     } else {
       title = "\uD83D\uDEA7 Hardware Limit Reached";
-      text = "You served " + state.served + "/" + L.goal + " drinks.\n\nNo amount of optimisation can overcome a hardware bottleneck.\nYour pantry (memory bandwidth) is the ceiling.\n\nIn ML: this is why we need faster memory, not just more GPUs.";
+      text = "You served " + state.served + "/" + L.goal + " drinks.\n\nNo amount of optimization can overcome a hardware bottleneck.\nYour pantry (memory bandwidth) is the ceiling.\n\nIn ML: this is why we need faster memory, not just more GPUs.";
     }
 
     const loseHtml = rooflineSvg + `
       <div class="rooflineCaption" style="margin-top:12px; font-size:14px;">
-        <b>\uD83E\uDDEA The lesson:</b> Your compute (baristas) is fine.
-        The pantry (bandwidth) is the bottleneck.
-        No software optimisation can fix a hardware ceiling.
+        <b>\uD83E\uDDEA Roofline, clearly:</b> throughput rises with more compute <b>until</b> you hit pantry bandwidth.
+        Past the knee, you're <b>bandwidth-limited</b> \u2014 adding baristas doesn't help.
+        To move up, you need faster bandwidth (pantry) or higher arithmetic intensity (batching/cache hits).
       </div>
       <div class="rooflineCaption" style="margin-top:12px; text-align:center;">
-        <b style="font-size:16px;">Upgrade the pantry?</b>
+        <b style="font-size:16px;">Pantry too slow? Upgrade the pantry to win!</b>
       </div>
       <div style="text-align:center; margin-top:8px;">
         <a href="https://www.amazon.com/NVD-RTX-PRO-6000-Blackwell/dp/B0F7Y644FQ?th=1"
@@ -296,10 +296,10 @@ export const App = (() => {
            style="display:inline-block; padding:12px 24px; background:linear-gradient(180deg,#76B900,#5A8F00);
                   color:white; border-radius:999px; text-decoration:none; font-weight:900; font-size:15px;
                   box-shadow:0 4px 16px rgba(0,0,0,.25); border:2px solid #4A7A00;">
-          \uD83D\uDED2 Upgrade Hardware \u2014 RTX PRO 6000
+          \uD83D\uDED2 \u201CUpgrade the Pantry\u201D (totally not a GPU)
         </a>
       </div>
-      <div class="rooflineCaption" style="margin-top:8px; text-align:center; font-size:11px; color:#6B4C3A;">
+      <div class="rooflineCaption" style="margin-top:8px; text-align:center; font-size:11px; color:#6b7280;">
         (or try again\u2026 but you know how this ends \uD83D\uDE09)
       </div>
     `;

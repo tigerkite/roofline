@@ -164,7 +164,7 @@ export const Model = (() => {
         state.events.push({ type: "leave" });
         state.bubbles.push({
           text: U.pick(LEAVE_MSGS), x: c.x, y: c.y,
-          t: 1.4, maxT: 1.4, color: "#D9480F",
+          t: 1.4, maxT: 1.4, color: "#dc2626",
         });
       }
     }
@@ -275,7 +275,7 @@ export const Model = (() => {
               state.events.push({ type: "remake" });
               state.bubbles.push({
                 text: U.pick(REMAKE_MSGS), x: st.x + 100, y: st.y + 20,
-                t: 1.2, maxT: 1.2, color: "#D9480F",
+                t: 1.2, maxT: 1.2, color: "#dc2626",
               });
               // screen shake
               state.shake = {
@@ -294,14 +294,14 @@ export const Model = (() => {
               state.events.push({ type: "serve" });
               state.bubbles.push({
                 text: U.pick(msgList), x: st.x + 100, y: st.y + 20,
-                t: 1.2, maxT: 1.2, color: "#2F9E44",
+                t: 1.2, maxT: 1.2, color: "#059669",
               });
               if (state.serveStreak > 0 && state.serveStreak % 5 === 0) {
                 state.events.push({ type: "combo" });
                 state.bubbles.push({
                   text: "\uD83D\uDD25 " + state.serveStreak + "x!",
                   x: g.pickup.x + g.pickup.w / 2, y: g.pickup.y - 10,
-                  t: 1.6, maxT: 1.6, color: "#D9480F",
+                  t: 1.6, maxT: 1.6, color: "#dc2626",
                 });
               }
             }
@@ -375,7 +375,7 @@ export const Model = (() => {
 
   function burstConfetti(state, x, y, count) {
     const n = count || 120;
-    const colors = ["#FFD79F", "#E9B36C", "#FAD6A5", "#FFF8EB", "#D9480F", "#2F9E44", "#FF6B6B", "#4ECDC4", "#FFE66D", "#A855F7"];
+    const colors = ["#fff", "#f8f8f8", "#e5e7eb", "#2563eb", "#1d4ed8", "#059669", "#dc2626", "#6b7280", "#374151"];
     for (let i = 0; i < n; i++) {
       state.confetti.push({
         x, y,
